@@ -9,3 +9,4 @@ A detailed plan is created below at the beginning of the semester, and I'll be p
 3.
 
 ####  \*\*Updates & Progress\*\*
+Sep 12: Learning git command lines
