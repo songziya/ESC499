@@ -29,3 +29,5 @@ A detailed plan will be gradually developed below throughout the semester, and I
 [Sep 16]: \*\*\* No plan.py file in the either of the folder PROST_ROOT or RDDLSIM_ROOT (not able to run client)
 
 \* Error when entering `vagrant up`. (It is unknown if this will affect future exercise yet)
+
+![](https://github.com/songziya/ESC499/blob/master/General%20Documents/Issues/vagrant%20up.png)
