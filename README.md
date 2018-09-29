@@ -11,6 +11,8 @@ A detailed plan will be gradually developed below throughout the semester, and I
 ###  \*\*Updates & Progress\*\*
 [Sep 29 13:00-15:00]: Setting up TFPlaner, emailed Thiago for installing instrcutions.
 
+&emsp; Potentially useful link: [pyrddl module](https://pypi.org/project/pyrddl/)
+
 [Sep 28 12:00-13:00]: Understanding backpropagation equation, clarified a typo with Wu Ga.
 
 [Sep 27 22:00-23:00]: Trying to understand backpropagation equation, emailed Buser and Wu Ga with questions.
