@@ -13,6 +13,8 @@ A detailed plan will be gradually developed below throughout the semester, and I
 
 &emsp; Potentially useful link: [pyrddl module](https://pypi.org/project/pyrddl/)
 
+[18:00-21:30]: Writing rddl domain+instance file for navigation problem with 'solid center obstacle'(absolutely no pass) **Need to test with TFplaner**
+
 [Sep 28 12:00-13:00]: Understanding backpropagation equation, clarified a typo with Wu Ga.
 
 [Sep 27 22:00-23:00]: Trying to understand backpropagation equation, emailed Buser and Wu Ga with questions.
@@ -27,7 +29,7 @@ A detailed plan will be gradually developed below throughout the semester, and I
 
 &emsp; Simulation running: `./run rddl.sim.Simulator <DOMAINPATH> <rddl-policy> <inst-name> <viz-class-name>`
 
-[Sep 14 16:00-18:00]: Learning git command lines.
+[Sep 14 16:00-18:00]: Learning git command lines. **Add-Commit-Push**
 
 &emsp; Useful link: [Git command cheetsheet](https://education.github.com/git-cheat-sheet-education.pdf)
 
