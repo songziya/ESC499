@@ -9,6 +9,8 @@ A detailed plan will be gradually developed below throughout the semester, and I
 3.
 
 ###  \*\*Updates & Progress\*\*
+[Oct 01 20:00-21:30]: Running TFPlaner with the navigation sample on Linux virtual machine.
+
 [Sep 29 13:00-15:00]: Setting up TFPlaner, emailed Thiago for installing instrcutions.
 
 &emsp; Potentially useful link: [pyrddl module](https://pypi.org/project/pyrddl/)
