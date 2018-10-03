@@ -9,13 +9,20 @@ A detailed plan will be gradually developed below throughout the semester, and I
 3.
 
 ###  \*\*Updates & Progress\*\*
+**Current task:** 
+* Derive correct Backprop equation
+* Run Navigation(block behaviour) with TFplanner.
+* ~~Get TFplanner running on Linux.~~
+
+[Oct 03 17:00-18:00] Modified Navagation_Nonlinear so that block behaviour is in state-action constraint block.
+
 [Oct 01 20:00-21:30]: Running TFPlaner with the navigation sample on Linux virtual machine.
 
 [Sep 29 13:00-15:00]: Setting up TFPlaner, emailed Thiago for installing instrcutions.
 
 &emsp; Potentially useful link: [pyrddl module](https://pypi.org/project/pyrddl/)
 
-[18:00-21:30]: Writing rddl domain+instance file for navigation problem with 'solid center obstacle'(absolutely no pass) **Need to test with TFplaner**
+[18:00-21:30]: Writing rddl domain+instance file for navigation problem with 'solid center obstacle'(absolutely no pass) 
 
 [Sep 28 12:00-13:00]: Understanding backpropagation equation, clarified a typo with Wu Ga.
 
