@@ -10,11 +10,13 @@ A detailed plan will be gradually developed below throughout the semester, and I
 
 ###  \*\*Updates & Progress\*\*
 **Current task:** 
-* Derive correct Backprop equation
 * Run Navigation(block behaviour) with TFplanner.
+* ~~Derive correct Backprop equation~~
 * ~~Get TFplanner running on Linux.~~
 
 [Oct 03 17:00-18:00] Modified Navagation_Nonlinear so that block behaviour is in state-action constraint block.
+
+[20:00-21:30] Derived the formula for Backprop.
 
 [Oct 01 20:00-21:30]: Running TFPlaner with the navigation sample on Linux virtual machine.
 
