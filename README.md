@@ -14,6 +14,10 @@ A detailed plan will be gradually developed below throughout the semester, and I
 * ~~Derive correct Backprop equation~~
 * ~~Get TFplanner running on Linux.~~
 
+[Oct 07 20:00-21:30] Debugged and ran navigation RDDL model in TFplanner(**Without block behaviour**)
+
+Action constraints only works in 'action-preconditions' section, they DO NOT work in 'state-action-constraints' section.
+
 [Oct 03 17:00-18:00] Modified Navagation_Nonlinear so that block behaviour is in state-action constraint block.
 
 [20:00-21:30] Derived the formula for Backprop.
