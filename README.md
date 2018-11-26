@@ -1,18 +1,21 @@
 ## ESC499
 This repository is dedicated to my graduation thesis. It contains all the files that are related to the thesis. 
 
-A detailed plan will be gradually developed below throughout the semester, and I'll be posting progress update in a weekly basis. 
+### About 'RDDL model' folder
+This folder contains different versions of navigation.rddl files
 
-### Work Plan
-1. Learning RDDL Tutorial
-2.
-3.
+v1.3: Added interm variables, 'block behaviour' is demenstrated through a separate state variable 'v5'. 'v5' is updated through a cdf that contains all the interm variables.
+ 
+v1.4: Replaced the entire 'interm variables' system with state-action constraints. TFplan is responsible for converting constraints into a part of the reward function. So the 'block behaviour' now should be regulated by the state-action constraints.  
+### About 'TFplan files' folder
+Contains all files that are part of the TFplaner(TFplan, tfrddlsim, etc). 
+Note that all sections where I modified are indicated by the comment 'Scott:'
+
 
 ###  \*\*Updates & Progress\*\*
 **Current task:** 
-* Run Navigation(block behaviour) with TFplanner.
-* ~~Derive correct Backprop equation~~
-* ~~Get TFplanner running on Linux.~~
+* Automate the process of converting State-Action Constraints into reward function in TFplanner.
+
 
 [Oct 07 20:00-21:30] Debugged and ran navigation RDDL model in TFplanner(**Without block behaviour**)
 
