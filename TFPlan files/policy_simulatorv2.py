@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with tf-rddlsim. If not, see <http://www.gnu.org/licenses/>.
 
+# Scott: This update corresponds to section 3.2.2 in interim report.
 
 from rddl2tf.compiler import Compiler
 from rddl2tf.fluent import TensorFluent
