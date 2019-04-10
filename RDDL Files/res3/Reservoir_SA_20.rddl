@@ -1,0 +1,113 @@
+domain reservoir {
+	
+	requirements = {
+		concurrent,
+		reward-deterministic,
+		intermediate-nodes,
+		constrained-state
+	};
+	
+	types {
+		res: object;
+	};
+	
+	pvariables {
+		maxRCap(res): { non-fluent, real, default = 100.0};
+		//ub(res): {non-fluent, real, default = 70.0};
+		//lb(res): {non-fluent, real, default = 30.0};
+		desiredlvl(res): {non-fluent, real, default = 60.0};
+		downStream(res,res): {non-fluent, bool, default = false};
+		//sink(res): {non-fluent, bool, default = false};
+		
+		nPenalty(res): {non-fluent, real, default = -5.0};//normal penalty for below or above the desired level
+		hPenalty(res): {non-fluent, real, default = -10.0};//high penalty for overflow
+		
+		rain(res): {interm-fluent, real, level=1};
+		rainShape(res): {non-fluent, real, default = 2.0};
+		rainScale(res): {non-fluent, real, default = 2.0};
+		inflow(res): {interm-fluent, real, level=1};
+		overflow(res): {interm-fluent, real, level=2};
+		eva(res): {interm-fluent, real, level=3};
+		
+		rlevel(res): {state-fluent, real, default = 75.0};
+		
+		outflow(res): {action-fluent, real, default = 0.0};
+	};
+	
+	cpfs {
+		rain(?r) = Gamma(rainShape(?r),rainScale(?r));
+		
+		inflow(?r) = sum_{?up:res}[downStream(?up,?r) * outflow(?up)];
+		
+		overflow(?r) = max[0, rlevel(?r) - outflow(?r) + inflow(?r) + rain(?r) - maxRCap(?r)];
+		
+		eva(?r) = 0.1 * (rlevel(?r)*sin[rlevel(?r)/maxRCap(?r)]);
+		//eva(?r) = 0.0006 * 3.1415926 * rlevel(?r)*(maxRCap(?r)-rlevel(?r));
+		
+		rlevel'(?r) = min[maxRCap(?r), max[0, rlevel(?r) + rain(?r) - eva(?r) - outflow(?r) + inflow(?r)]];
+	};
+	
+	// reward (water level only)
+	//reward = sum_{?r:res}[overflow(?r) * hPenalty(?r)] + sum_{?r:res}[abs[rlevel(?r) - desiredlvl(?r)] * nPenalty(?r)];
+	// reward (water level and outflow constraints) 0 <= |outflow| <= 5
+	reward = sum_{?r:res}[overflow(?r) * hPenalty(?r)] + sum_{?r:res}[abs[rlevel(?r) - desiredlvl(?r)] * nPenalty(?r)] + sum_{?r:res}[2 / ((1 + exp[-16*(outflow(?r))]) * (1 + exp[16*(outflow(?r) - 5)]))];
+	
+}
+
+non-fluents res10 {
+	domain = reservoir;
+	objects{
+		res: {t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20};
+	};
+	non-fluents {
+		downStream(t1,t2);
+		downStream(t2,t3);
+		downStream(t3,t4);
+		downStream(t4,t5);
+		downStream(t5,t6);
+		downStream(t6,t7);
+		downStream(t7,t8);
+		downStream(t8,t9);
+		downStream(t9,t10);
+		downStream(t10,t11);
+		downStream(t11,t12);
+		downStream(t12,t13);
+		downStream(t13,t14);
+		downStream(t14,t15);
+		downStream(t15,t16);
+		downStream(t16,t17);
+		downStream(t17,t18);
+		downStream(t18,t19);
+		downStream(t19,t20);
+	};
+}
+
+instance inst_reservoir_res10 {
+	domain = reservoir;
+	non-fluents = res10;
+	init-state{
+		rlevel(t1) = 75.0;
+		rlevel(t2) = 75.0;
+		rlevel(t3) = 75.0;
+		rlevel(t4) = 35.0;
+		rlevel(t5) = 35.0;
+		rlevel(t6) = 35.0;
+		rlevel(t7) = 60.0;
+		rlevel(t8) = 60.0;
+		rlevel(t9) = 60.0;
+		rlevel(t10) = 60.0;
+		rlevel(t11) = 75.0;
+		rlevel(t12) = 75.0;
+		rlevel(t13) = 75.0;
+		rlevel(t14) = 35.0;
+		rlevel(t15) = 35.0;
+		rlevel(t16) = 35.0;
+		rlevel(t17) = 60.0;
+		rlevel(t18) = 60.0;
+		rlevel(t19) = 60.0;
+		rlevel(t20) = 60.0;
+	};
+	max-nondef-actions = pos-inf;
+    horizon = 40;
+    discount = 1.0;
+}

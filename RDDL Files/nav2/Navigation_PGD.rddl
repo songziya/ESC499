@@ -1,0 +1,173 @@
+//Domain file
+domain Navigation_Nonlinear {
+	
+	requirements = {
+		concurrent,			 // action is split in two directions(x,y)
+		constrained-state,   // states are contrained by the boundaries
+		continuous, 	     // continuous state
+		cpf-deterministic,   // transition function is deterministic
+		intermediate-nodes,
+		reward-deterministic // reward function is also deterministic
+	};
+	
+//	types {
+//		pos: object;
+//	};
+		
+	pvariables {
+		// State boundary constant (assume same for x&y)
+		s_ub:{non-fluent, real, default = 10.0};
+		s_lb:{non-fluent, real, default = 0.0};
+		// Wall
+		wall_ub_x:{non-fluent, real, default = 6.0};
+		wall_lb_x:{non-fluent, real, default = 4.0};
+		wall_ub_y:{non-fluent, real, default = 6.0};
+		wall_lb_y:{non-fluent, real, default = 4.0};
+		// Action boundary constant (assume same for x&y)
+		a_ub:{non-fluent, real, default = 0.5};
+		a_lb:{non-fluent, real, default = -0.5};
+		// Goal state
+		goal_state_x:{non-fluent, real, default = 8.0};
+		goal_state_y:{non-fluent, real, default = 8.0};
+		// State variable
+		state_x:{state-fluent, real, default = 0.0};
+		state_y:{state-fluent, real, default = 0.0};
+		// Action variable
+		act_x:{action-fluent, real, default = 0.0};
+		act_y:{action-fluent, real, default = 0.0};
+		// Interm variable for sigmoid bound
+		acttheta:{interm-fluent, real, level=1};
+		actboundx:{interm-fluent, real, level=2};
+		actboundy:{interm-fluent, real, level=2};
+
+		len1:{interm-fluent, real, level=3};
+		len2:{interm-fluent, real, level=3};
+		len3:{interm-fluent, real, level=3};
+		len4:{interm-fluent, real, level=3};
+		
+		slen1:{interm-fluent, real, level=3};
+		slen2:{interm-fluent, real, level=3};
+		slen3:{interm-fluent, real, level=3};
+		slen4:{interm-fluent, real, level=3};
+
+		trueactx:{interm-fluent, real, level=4};
+		trueacty:{interm-fluent, real, level=4};
+
+	};
+	
+	cdfs {
+		
+		//actboundx = min[0.5,max[-0.5,act_x]]; // action bounded in 0 and 0.5
+		//actboundy = min[0.5,max[-0.5,act_y]];
+		acttheta = atan[act_y , act_x];
+		actboundx = if (pow[act_x,2] + pow[act_y,2] > 1)
+						then cos[acttheta]
+					else
+						act_x;
+		actboundy = if (pow[act_x,2] + pow[act_y,2] > 1)
+						then sin[acttheta]
+					else
+						act_y;
+
+		len1 = sqrt[pow[state_x + actboundx - 3,2] + pow[state_y + actboundy - 3,2]];
+		len2 = sqrt[pow[state_x + actboundx - 4,2] + pow[state_y + actboundy - 6,2]];
+		len3 = sqrt[pow[state_x + actboundx - 6,2] + pow[state_y + actboundy - 4,2]];
+		len4 = sqrt[pow[state_x + actboundx - 7,2] + pow[state_y + actboundy - 7,2]];
+		
+		slen1 = sqrt[pow[state_x - 3,2] + pow[state_y - 3,2]];
+		slen2 = sqrt[pow[state_x - 4,2] + pow[state_y - 6,2]];
+		slen3 = sqrt[pow[state_x - 6,2] + pow[state_y - 4,2]];
+		slen4 = sqrt[pow[state_x - 7,2] + pow[state_y - 7,2]];
+		
+		trueactx = ((len1<=1)*(slen1 - 1) / (2*slen1) 
+				 + (len2<=1)*(slen2 - 1) / (2*slen2)
+				 + (len3<=1)*(slen3 - 1) / (2*slen3)
+				 + (len4<=1)*(slen4 - 1) / (2*slen4)
+				 + (1 - ((len1<=1)|(len2<=1)|(len3<=1)|(len4<=1))))*actboundx;
+		
+		trueacty = ((len1<=1)*(slen1 - 1) / (2*slen1)
+				 + (len2<=1)*(slen2 - 1) / (2*slen2)
+				 + (len3<=1)*(slen3 - 1) / (2*slen3)
+				 + (len4<=1)*(slen4 - 1) / (2*slen4)
+				 + (1 - ((len1<=1)|(len2<=1)|(len3<=1)|(len4<=1))))*actboundy;
+		
+//		trueactx = (len1<1)*(((state_x + actboundx) - 3*(1 - len1)) / len1 - state_x) 
+//				 + (len2<1)*(((state_x + actboundx) - 4*(1 - len2)) / len2 - state_x)
+//				 + (len3<1)*(((state_x + actboundx) - 6*(1 - len3)) / len3 - state_x)
+//				 + (len4<1)*(((state_x + actboundx) - 7*(1 - len4)) / len4 - state_x)
+//				 + (1 - (len1<1)|(len2<1)|(len3<1)|(len4<1))*actboundx;
+		
+//		trueacty = (len1<1)*(((state_y + actboundy) - 3*(1 - len1)) / len1 - state_y)
+//				 + (len2<1)*(((state_y + actboundy) - 6*(1 - len2)) / len2 - state_y)
+//				 + (len3<1)*(((state_y + actboundy) - 4*(1 - len3)) / len3 - state_y)
+//				 + (len4<1)*(((state_y + actboundy) - 7*(1 - len4)) / len4 - state_y)
+//				 + (1 - (len1<1)|(len2<1)|(len3<1)|(len4<1))*actboundy;
+
+				
+//		act_x = trueactx;
+//		act_y = trueacty;
+		
+		state_x' = state_x + trueactx;
+		state_y' = state_y + trueacty;
+
+	};
+	//Calculate Euclidean distance
+	reward = -5*sqrt[pow[goal_state_x - state_x,2] + pow[goal_state_y - state_y,2]];
+	
+	state-action-constraints {
+
+		// state constraints
+
+		// wall state contraints ***Not sure if the implementation below will work***
+		//(state_x<=wall_lb_x)|(state_y<=wall_lb_y)|(state_x>=wall_ub_x)|(state_y>=wall_ub_y);
+		
+	};
+	action-preconditions {
+		// action constraints
+		//act_x <= a_ub;
+		//act_x >= a_lb;
+		//act_y <= a_ub;
+		//act_y >= a_lb;
+		
+	};
+	
+	state-invariants {
+		
+		state_x <= s_ub;
+		state_x >= s_lb;
+		state_y <= s_ub;
+		state_y >= s_lb;
+
+	};
+	
+}
+
+// Non-fluents file
+non-fluents nf_Navigation_Nonlinear {
+	domain = Navigation_Nonlinear;
+//	objects {
+//		pos:{x, y};
+//	};
+	non-fluents {
+		goal_state_x = 9.0;
+		goal_state_y = 9.0;
+		wall_lb_x = 4.0;
+		wall_lb_y = 4.0;
+		wall_ub_x = 6.0;
+		wall_ub_y = 6.0;
+		
+	};
+}
+
+// Instance file
+instance nav_nl_inst {
+	domain = Navigation_Nonlinear;
+	non-fluents = nf_Navigation_Nonlinear;
+	init-state {
+		state_x = 0.5;
+		state_y = 0.5;
+	};
+	max-nondef-actions = 3; // actions in x and y
+	horizon = 20;
+	discount = 1.0;
+}

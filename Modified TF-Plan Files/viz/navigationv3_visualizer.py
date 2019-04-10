@@ -51,13 +51,19 @@ class Navigationv3Visualizer(Visualizer):
             trajectories: NonFluents, states, actions, interms and rewards.
             batch: Number of batches to render.
         '''
-
+        # With constraints
+        #non_fluents, initial_state, states, actions, interms, rewards, SA_constraints = trajectories
+        # Without constraints
         non_fluents, initial_state, states, actions, interms, rewards = trajectories
-
+        
         non_fluents = dict(non_fluents)
-        states  = dict((name, fluent[0]) for name, fluent in states)
+        states = dict((name, fluent[0]) for name, fluent in states)
         #print(states)
+        
+        interms = dict((name, fluent[0]) for name, fluent in interms)
+        
         actions = dict((name, fluent[0]) for name, fluent in actions)
+        
         rewards = rewards[0]
 
         idx = self._compiler.state_fluent_ordering.index('state_x/0')
@@ -66,41 +72,42 @@ class Navigationv3Visualizer(Visualizer):
         start = np.array([initial_state[idx][0],initial_state[idy][0]])
         start = start.reshape((2,))
         #print(start)
+        
         g = np.array([non_fluents['goal_state_x/0'],non_fluents['goal_state_y/0']])
         #print(g)
+        
         path = np.array([states['state_x/0'],states['state_y/0']])
         #print(path)
         pshape = path.shape
         path = path.reshape((2,pshape[1]),order='F')
         path = path.T
-        #print(path.shape)
         #print(path)
-        deltas = np.array([actions['act_x/0'],actions['act_y/0']])
-        #print(deltas)
-        #print(deltas.shape)
+
+## select fluent to extract action from:    
+    
+        deltas = np.array([actions['act_x/0'],actions['act_y/0']]) # v1
+        #deltas = np.array([interms['trueactx/0'],interms['trueacty/0']]) # v2
+##
         dshape = deltas.shape
         deltas = deltas.reshape((2,dshape[1]),order='F')
         deltas = deltas.T
         #print(deltas)
 
-        #centers = non_fluents['DECELERATION_ZONE_CENTER/2']
-        #decays = non_fluents['DECELERATION_ZONE_DECAY/1']
-        #zones = [(x, y, d) for (x, y), d in zip(centers, decays)]
+
 
         self._ax1 = plt.gca()
 
         self._render_state_space()
         self._render_start_and_goal_positions(start, g)
-        #self._render_deceleration_zones(zones)
         self._render_state_action_trajectory(start, path, deltas)
 
-        plt.title('Navigation', fontweight='bold')
+        plt.title('Navigation Model', fontweight='bold')
         plt.legend(loc='lower right')
         plt.show()
 
     def _render_state_space(self):
-        # lower, upper = (-5.0, -5.0), (10.0, 10.0)
-        # self._ax1.axis([lower[0], upper[0], lower[1], upper[1]])
+        lower, upper = (-1.0, -1.0), (10.0, 10.0)
+        self._ax1.axis([lower[0], upper[0], lower[1], upper[1]])
         self._ax1.set_aspect("equal")
         self._ax1.set_xlabel("x coordinate")
         self._ax1.set_ylabel("y coordinate")

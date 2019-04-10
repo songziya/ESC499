@@ -1,0 +1,117 @@
+//Domain file
+domain Navigation_Nonlinear {
+	
+	requirements = {
+		concurrent,			 // action is split in two directions(x,y)
+		constrained-state,   // states are contrained by the boundaries
+		continuous, 	     // continuous state
+		cpf-deterministic,   // transition function is deterministic
+		intermediate-nodes,
+		reward-deterministic // reward function is also deterministic
+	};
+	
+//	types {
+//		pos: object;
+//	};
+		
+	pvariables {
+		// State boundary constant (assume same for x&y)
+		s_ub:{non-fluent, real, default = 10.0};
+		s_lb:{non-fluent, real, default = 0.0};
+		// Wall
+		wall_ub_x:{non-fluent, real, default = 6.0};
+		wall_lb_x:{non-fluent, real, default = 4.0};
+		wall_ub_y:{non-fluent, real, default = 6.0};
+		wall_lb_y:{non-fluent, real, default = 4.0};
+		// Action boundary constant (assume same for x&y)
+		a_ub:{non-fluent, real, default = 0.5};
+		a_lb:{non-fluent, real, default = -0.5};
+		// Goal state
+		goal_state_x:{non-fluent, real, default = 8.0};
+		goal_state_y:{non-fluent, real, default = 8.0};
+		// State variable
+		state_x:{state-fluent, real, default = 0.0};
+		state_y:{state-fluent, real, default = 0.0};
+		// Action variable
+		act_x:{action-fluent, real, default = 0.0};
+		act_y:{action-fluent, real, default = 0.0};
+
+	};
+	
+	cdfs {
+
+		state_x' = state_x+act_x;
+		state_y' = state_y+act_y;
+
+	};
+	//Calculate Manhattan distance, sqrt(x^2) = abs(x) 
+	//reward = - abs[goal_state_x - state_x] - abs[goal_state_y - state_y];
+	//Calculate Euclidean distance(state) with action constraints
+	//reward = -sqrt[pow[8 - state_x,2] + pow[8 - state_y,2]] + 5 / (1 + exp[16 * (pow[act_x,2] + pow[act_y,2] - 0.25)]);
+	//Calculate Euclidean distance with Block Constraint
+	//reward = -sqrt[pow[goal_state_x - state_x,2] + pow[goal_state_y - state_y,2]]-5/((1 + exp[16*(state_x - 6)])*(1 + exp[-16*(state_x - 4)])*(1 + exp[16*(state_y - 6)])*(1 + exp[-16*(state_y - 4)]));
+	//Calculate Euclidean distance(state) with action and state constraints
+	reward = -sqrt[pow[goal_state_x - state_x,2] + pow[goal_state_y - state_y,2]]
+		-5/((1 + exp[16*(state_x - 6)])*(1 + exp[-16*(state_x - 4)])*(1 + exp[16*(state_y - 6)])*(1 + exp[-16*(state_y - 4)]))
+		+4/(1 + exp[16 * (pow[act_x,2] + pow[act_y,2] - 1)]);
+	//reward = -sqrt[pow[goal_state_x - state_x,2] + pow[goal_state_y - state_y,2]]
+	//	-5/((1 + exp[16*(state_x - 6)])*(1 + exp[-16*(state_x - 4)])*(1 + exp[16*(state_y - 6)])*(1 + exp[-16*(state_y - 4)]))
+	//	+4/((1 + exp[-16*(act_x + 0.5)])*(1 + exp[16*(act_x - 0.5)])*(1 + exp[-16*(act_y + 0.5)])*(1 + exp[16*(act_y - 0.5)]));
+	
+	state-action-constraints {
+
+		// state constraints
+
+		// wall state contraints ***Not sure if the implementation below will work***
+		//(state_x<=wall_lb_x)|(state_y<=wall_lb_y)|(state_x>=wall_ub_x)|(state_y>=wall_ub_y);
+		
+	};
+	action-preconditions {
+		// action constraints
+		//act_x <= a_ub;
+		//act_x >= a_lb;
+		//act_y <= a_ub;
+		//act_y >= a_lb;
+		
+	};
+	
+	state-invariants {
+		
+		state_x <= s_ub;
+		state_x >= s_lb;
+		state_y <= s_ub;
+		state_y >= s_lb;
+
+	};
+	
+}
+
+// Non-fluents file
+non-fluents nf_Navigation_Nonlinear {
+	domain = Navigation_Nonlinear;
+//	objects {
+//		pos:{x, y};
+//	};
+	non-fluents {
+		goal_state_x = 8.0;
+		goal_state_y = 8.0;
+		wall_lb_x = 4.0;
+		wall_lb_y = 4.0;
+		wall_ub_x = 6.0;
+		wall_ub_y = 6.0;
+		
+	};
+}
+
+// Instance file
+instance nav_nl_inst {
+	domain = Navigation_Nonlinear;
+	non-fluents = nf_Navigation_Nonlinear;
+	init-state {
+		state_x = 0.5;
+		state_y = 0.5;
+	};
+	max-nondef-actions = 3; // actions in x and y
+	horizon = 20;
+	discount = 1.0;
+}

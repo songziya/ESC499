@@ -17,11 +17,13 @@
 from tfplan.train.policy import OpenLoopPolicy
 
 from rddl2tf.compiler import Compiler
-from tfrddlsim.simulation.policy_simulatorv2 import PolicySimulator
+from tfrddlsim.simulation.policy_simulator import PolicySimulator
 
 import sys
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
+import time
 
 from typing import List, Optional, Sequence
 
@@ -84,6 +86,7 @@ class ActionOptimizer(object):
         Returns:
             List[np.array], List[np.array]: A tuple with the optimized actions and policy variables.
         '''
+        start = time.time()
         with tf.Session(graph=self.graph) as sess:
             sess.run(tf.global_variables_initializer())
 
@@ -94,7 +97,10 @@ class ActionOptimizer(object):
             solution = None
             policy_variables = None
             best_reward = float(-sys.maxsize)
-
+            #'''
+            x = []
+            y = []
+            #'''
             for step in range(epochs):
                 _, loss, total_reward = sess.run(
                     [self._train_op, self.loss, self._best_total_reward],
@@ -108,7 +114,19 @@ class ActionOptimizer(object):
 
                 if show_progress:
                     print('Epoch {0:5}: loss = {1:3.6f}\r'.format(step, loss), end='')
-
+                    #'''
+                    x.append(step)
+                    y.append(loss)
+            
+            end = time.time()
+            print()
+            print(end-start)
+            
+            plt.plot(x,y)
+            plt.ylabel('reward')
+            plt.xlabel('training epoch')
+            plt.show()
+            #'''
             return solution, policy_variables
 
     def _build_trajectory_graph(self, horizon: int, batch_size: int) -> None:
@@ -118,23 +136,14 @@ class ActionOptimizer(object):
         self.initial_state = trajectories[0]
         self.states = trajectories[1]
         self.actions = trajectories[2]
+        self.interms = trajectories[3]#scott
         self.rewards = trajectories[4]
-        # Scott:
-        self.SA_constraints = trajectories[5]
 
     def _build_loss_graph(self) -> None:
         '''Builds the loss ops.'''
         self.total_reward = tf.squeeze(tf.reduce_sum(self.rewards, axis=1))
         self.avg_total_reward = tf.reduce_mean(self.total_reward)
-        # Scott:
-        self.total_cons_penal = tf.squeeze(tf.reduce_sum(self.SA_constraints, axis=1))
-        self.avg_cons_penal = tf.reduce_mean(self.total_cons_penal)
-        #self.penal = tf.subtract(1.0, self.avg_cons_penal)
-        self.penal = self.avg_cons_penal
-        self.M = tf.constant(10000, dtype = tf.float32)
-        self.penal = tf.multiply(self.M, self.penal)
         self.loss = tf.square(self.avg_total_reward)
-        self.loss = tf.add(self.loss, self.penal)
         print(self.loss)
 
     def _build_optimization_graph(self, learning_rate: float) -> None:
@@ -146,5 +155,6 @@ class ActionOptimizer(object):
         '''Builds ops for getting best solution and corresponding policy variables.'''
         self._best_idx = tf.argmax(self.total_reward, output_type=tf.int32)
         self._best_total_reward = self.total_reward[self._best_idx]
-        self._best_solution = tuple(fluent[self._best_idx] for fluent in self.actions)
+        #self._best_solution = tuple(fluent[self._best_idx] for fluent in self.actions)
+        self._best_solution = tuple(fluent[self._best_idx] for fluent in self.interms)#scott
         self._best_variables = self._policy[self._best_idx] if parallel_plans else self._policy[0]

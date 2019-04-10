@@ -1,0 +1,158 @@
+domain reservoir {
+	
+	requirements = {
+		concurrent,
+		reward-deterministic,
+		intermediate-nodes,
+		constrained-state
+	};
+	
+	types {
+		res: object;
+	};
+	
+	pvariables {
+		maxRCap(res): { non-fluent, real, default = 100.0};
+		//ub(res): {non-fluent, real, default = 70.0};
+		//lb(res): {non-fluent, real, default = 30.0};
+		desiredlvl(res): {non-fluent, real, default = 60.0};
+		downStream(res,res): {non-fluent, bool, default = false};
+		//sink(res): {non-fluent, bool, default = false};
+		
+		nPenalty(res): {non-fluent, real, default = -5.0};//normal penalty for below or above the desired level
+		hPenalty(res): {non-fluent, real, default = -10.0};//high penalty for overflow
+		
+		outflowBound(res): {interm-fluent, real, level=1}; //for sigmoid bound method
+		rain(res): {interm-fluent, real, level=1};
+		rainShape(res): {non-fluent, real, default = 2.0};
+		rainScale(res): {non-fluent, real, default = 2.0};
+		inflow(res): {interm-fluent, real, level=2};
+		overflow(res): {interm-fluent, real, level=3};
+		eva(res): {interm-fluent, real, level=3};
+		
+		
+		rlevel(res): {state-fluent, real, default = 75.0};
+		
+		outflow(res): {action-fluent, real, default = 0.0};
+		
+	};
+	
+	cpfs {
+		rain(?r) = Gamma(rainShape(?r),rainScale(?r));
+		
+		//outflowBound(?r) = 5 / (1+exp[-outflow(?r)]);// bounded between 0 and 5
+		outflowBound(?r) = min[5, max[0, outflow(?r)]];
+		
+		inflow(?r) = sum_{?up:res}[downStream(?up,?r) * outflowBound(?up)];
+		
+		overflow(?r) = max[0, rlevel(?r) - outflow(?r) + inflow(?r) + rain(?r) - maxRCap(?r)];
+		
+		eva(?r) = 0.1 * (rlevel(?r)*sin[rlevel(?r)/maxRCap(?r)]);
+		
+		rlevel'(?r) = min[maxRCap(?r), max[0, rlevel(?r) + rain(?r) - eva(?r) - outflowBound(?r) + inflow(?r)]];
+	};
+	
+	// reward (water level only)
+	reward = sum_{?r:res}[overflow(?r) * hPenalty(?r)] + sum_{?r:res}[abs[rlevel(?r) - desiredlvl(?r)] * nPenalty(?r)];
+	// reward (water level and outflow constraints) 0 <= |outflow| <= 5
+	//reward = sum_{?r:res}[overflow(?r) * hPenalty(?r)] + sum_{?r:res}[abs[rlevel(?r) - desiredlvl(?r)] * nPenalty(?r)] + sum_{?r:res}[2 / ((1 + exp[-16*(outflow(?r))]) * (1 + exp[16*(outflow(?r) - 5)]))];
+	
+}
+
+non-fluents res40 {
+	domain = reservoir;
+	objects{
+		res: {t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,t23,t24,t25,t26,t27,t28,t29,t30,t31,t32,t33,t34,t35,t36,t37,t38,t39,t40};
+	};
+	non-fluents {
+		downStream(t1,t2);
+		downStream(t2,t3);
+		downStream(t3,t4);
+		downStream(t4,t5);
+		downStream(t5,t6);
+		downStream(t6,t7);
+		downStream(t7,t8);
+		downStream(t8,t9);
+		downStream(t9,t10);
+		downStream(t10,t11);
+		downStream(t11,t12);
+		downStream(t12,t13);
+		downStream(t13,t14);
+		downStream(t14,t15);
+		downStream(t15,t16);
+		downStream(t16,t17);
+		downStream(t17,t18);
+		downStream(t18,t19);
+		downStream(t19,t20);
+		downStream(t20,t21);
+		downStream(t21,t22);
+		downStream(t22,t23);
+		downStream(t23,t24);
+		downStream(t24,t25);
+		downStream(t25,t26);
+		downStream(t26,t27);
+		downStream(t27,t28);
+		downStream(t28,t29);
+		downStream(t29,t30);
+		downStream(t30,t31);
+		downStream(t31,t32);
+		downStream(t32,t33);
+		downStream(t33,t34);
+		downStream(t34,t35);
+		downStream(t35,t36);
+		downStream(t36,t37);
+		downStream(t37,t38);
+		downStream(t38,t39);
+		downStream(t39,t40);
+	};
+}
+
+instance inst_reservoir_res40 {
+	domain = reservoir;
+	non-fluents = res40;
+	init-state{
+		rlevel(t1) = 75.0;
+		rlevel(t2) = 75.0;
+		rlevel(t3) = 75.0;
+		rlevel(t4) = 35.0;
+		rlevel(t5) = 35.0;
+		rlevel(t6) = 35.0;
+		rlevel(t7) = 60.0;
+		rlevel(t8) = 60.0;
+		rlevel(t9) = 60.0;
+		rlevel(t10) = 60.0;
+		rlevel(t11) = 75.0;
+		rlevel(t12) = 75.0;
+		rlevel(t13) = 75.0;
+		rlevel(t14) = 35.0;
+		rlevel(t15) = 35.0;
+		rlevel(t16) = 35.0;
+		rlevel(t17) = 60.0;
+		rlevel(t18) = 60.0;
+		rlevel(t19) = 60.0;
+		rlevel(t20) = 60.0;
+		rlevel(t21) = 75.0;
+		rlevel(t22) = 75.0;
+		rlevel(t23) = 75.0;
+		rlevel(t24) = 35.0;
+		rlevel(t25) = 35.0;
+		rlevel(t26) = 35.0;
+		rlevel(t27) = 60.0;
+		rlevel(t28) = 60.0;
+		rlevel(t29) = 60.0;
+		rlevel(t30) = 60.0;
+		rlevel(t31) = 75.0;
+		rlevel(t32) = 75.0;
+		rlevel(t33) = 75.0;
+		rlevel(t34) = 35.0;
+		rlevel(t35) = 35.0;
+		rlevel(t36) = 35.0;
+		rlevel(t37) = 60.0;
+		rlevel(t38) = 60.0;
+		rlevel(t39) = 60.0;
+		rlevel(t40) = 60.0;
+	};
+	max-nondef-actions = pos-inf;
+    horizon = 40;
+    discount = 1.0;
+}
